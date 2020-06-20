@@ -3,21 +3,22 @@ const {dynamoDb} = require('../dbConfig/dynamoDb');
 const {validateSchema} = require('../utils/validator');
 const {errorCodes, successCodes} = require('../utils/responseCodes');
 const {schema} = require('../utils/schema');
-const disAssociatePermissionSet = async (req, res) => {
+const moment = require('moment');
+const startTransition = async (req, res) => {
   try {
-    await validateSchema(req.body, schema.associatePermission);
-    const {identityId: sub, permissionSets} = req.body;
-    for (const set of permissionSets) {
-      const params = {
-        TableName: process.env.PERMISSION_SETS_ASSOCIATION_TABLE,
-        Key: {
-          sub,
-          permissionSetId: set.id
-        }
-      };
-      await dynamoDb.delete(params);
-    }
-    const response = successCodes['permissionSetDisassociationSuccess'];
+    await validateSchema(req.body, schema.startTransitionSchema);
+    const {orderId} = req.body;
+    const params = {
+      TableName: process.env.ORDER_DETAILS_TABLE,
+      Key: {orderId},
+      UpdateExpression: 'set #transition = :transition',
+      ExpressionAttributeNames: {'#transition': 'transition'},
+      ExpressionAttributeValues: {
+        ':transition': 'on'
+      }
+    };
+    await dynamoDb.update(params);
+    const response = successCodes['orderTransitionSuccess'];
     return res.status(response.statusCode).send({
       statusCode: response.statusCode,
       code: response.code
@@ -41,4 +42,4 @@ const disAssociatePermissionSet = async (req, res) => {
   }
 };
 
-module.exports = {disAssociatePermissionSet};
+module.exports = {startTransition};

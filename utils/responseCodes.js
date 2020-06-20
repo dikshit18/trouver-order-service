@@ -50,6 +50,18 @@ const successCodes = {
   permissionSetDisassociationSuccess: {
     code: 112,
     statusCode: 200
+  },
+  orderTransitionSuccess: {
+    code: 113,
+    statusCode: 200
+  },
+  fetchOrdersSuccess: {
+    code: 114,
+    statusCode: 200
+  },
+  orderHistorySuccess: {
+    code: 115,
+    statusCode: 200
   }
 };
 
@@ -105,6 +117,22 @@ const errorCodes = {
   permissionSetDisassociationFailure: {
     statusCode: 400,
     code: 163
+  },
+  orderTransitionFailure: {
+    statusCode: 400,
+    code: 164
+  },
+  fetchOrdersFailure: {
+    statusCode: 400,
+    code: 165
+  },
+  orderDetailsFailure: {
+    statusCode: 400,
+    code: 166
+  },
+  orderHistoryFailure: {
+    statusCode: 400,
+    code: 167
   }
 };
 module.exports = {errorCodes, successCodes};
