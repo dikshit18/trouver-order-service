@@ -2,21 +2,12 @@ const routes = require('express').Router();
 const {startTransition} = require('./services/startTransition');
 const {fetchAllOrders} = require('./services/fetchAllOrders');
 const {fetchOrder} = require('./services/fetchOrder');
-// const {associateorderSet} = require('./services/associateorder');
-// const {getorderDocument} = require('./services/orderDoc');
+const {orderHistory} = require('./services/orderHistory');
 routes.put('/shared/order/start', startTransition);
 routes.get('/shared/order/details/:orderId', fetchOrder);
-routes.get('/shared/order/details', fetchOrders);
-// routes.get('/shared/order/warehouses', associateorderSet);
-routes.put('/shared/order/history', associateorderSet);
+routes.get('/shared/order/details', fetchAllOrders);
+routes.put('/shared/order/history', orderHistory);
 module.exports = routes;
-//1. POST Start Transition
-//2. GET ,orderDetails/orderID, will include warehouse details
-// orderDetails will have a column which will tell the current location of the order
-//3. GET order-history
-//4. GET warehoures
-//5.
-
 /*
     {
     "orderId":"123141313211-31232183213213",

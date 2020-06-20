@@ -4,7 +4,7 @@ const {schema} = require('../utils/schema');
 const {errorCodes, successCodes} = require('../utils/responseCodes');
 const {getAllWarehouse} = require('../utils/warehouse');
 const {v4: uuid} = require('uuid');
-const fetchOrder = async (req, res) => {
+const orderHistory = async (req, res) => {
   try {
     await schema.fetchOrderDetails(req.body);
     const {orderId, description} = req.body;
@@ -60,4 +60,4 @@ const updateOrder = async (orderId, history) => {
   };
   return await dynamoDb.update(params);
 };
-module.exports = {fetchOrder};
+module.exports = {orderHistory};
