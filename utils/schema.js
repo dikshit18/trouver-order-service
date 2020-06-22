@@ -4,7 +4,7 @@ const JoiGuidV4 = Joi.string().guid({version: ['uuidv4']});
 const productDetails = Joi.object().keys({
   name: Joi.string().required(),
   label: Joi.string().required(),
-  qauntity: Joi.number().required()
+  quantity: Joi.number().required()
 });
 
 const schema = (() => {
@@ -12,11 +12,17 @@ const schema = (() => {
     saveOrderSchema: Joi.object()
       .keys({
         productId: JoiGuidV4.required(),
-        permissionSets: Joi.array().required(),
-        productDetails: Joi.array(productDetails).required(),
+        productDetails: Joi.array()
+          .items(productDetails)
+          .required(),
         orderDetails: Joi.object().keys({
           recipientName: Joi.string().required(),
-          address: Joi.string().required(),
+          address: Joi.object().keys({
+            line1: Joi.string().required(),
+            line2: Joi.string().required(),
+            line3: Joi.string().required(),
+            district: Joi.string().required()
+          }),
           phoneNumber: Joi.string().required()
         })
       })
@@ -32,7 +38,8 @@ const schema = (() => {
     saveOrderHistorySchema: Joi.object()
       .keys({
         orderId: JoiGuidV4.required(),
-        description: Joi.string().required()
+        description: Joi.string().required(),
+        currentLocation: Joi.string().required()
       })
       .unknown(false)
   };

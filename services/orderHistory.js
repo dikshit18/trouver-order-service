@@ -2,34 +2,35 @@ require('dotenv').config();
 const {dynamoDb} = require('../dbConfig/dynamoDb');
 const {schema} = require('../utils/schema');
 const {errorCodes, successCodes} = require('../utils/responseCodes');
+const {validateSchema} = require('../utils/validator');
+const moment = require('moment');
 const {getAllWarehouse} = require('../utils/warehouse');
 const {v4: uuid} = require('uuid');
 const orderHistory = async (req, res) => {
   try {
-    await schema.fetchOrderDetails(req.body);
-    const {orderId, description} = req.body;
+    await validateSchema(req.body, schema.saveOrderHistorySchema);
+    const {orderId, description, currentLocation} = req.body;
     const params = {
-      TableName: process.env.ADMIN_TABLE,
+      TableName: process.env.ORDER_DETAILS_TABLE,
       Key: {
         orderId
       }
     };
     const orderDetails = await dynamoDb.get(params);
     if (orderDetails) {
-      let {history} = orderDetails;
+      let {history} = orderDetails.Item;
       if (!history) history = [];
       history.push({
         id: uuid(),
-        description
+        description,
+        timestamp: moment.utc().format()
       });
-      await updateOrder(orderId, history);
+      await updateOrder(orderId, history, currentLocation);
     }
     const response = successCodes['orderHistorySuccess'];
     return res.status(response.statusCode).send({
       statusCode: response.statusCode,
-      code: response.code,
-      orders: orders.Items,
-      warehouse: remainingWarehouses
+      code: response.code
     });
   } catch (e) {
     //Needed to be defined again
@@ -49,13 +50,15 @@ const orderHistory = async (req, res) => {
     }
   }
 };
-const updateOrder = async (orderId, history) => {
+const updateOrder = async (orderId, history, currentLocation) => {
   const params = {
     TableName: process.env.ORDER_DETAILS_TABLE,
     Key: {orderId},
-    UpdateExpression: 'set history = :history',
+    UpdateExpression: 'set history = :history , currentLocation= :currentLocation',
+    ConditionExpression: 'attribute_exists(orderId)',
     ExpressionAttributeValues: {
-      ':history': history
+      ':history': history,
+      ':currentLocation': currentLocation
     }
   };
   return await dynamoDb.update(params);

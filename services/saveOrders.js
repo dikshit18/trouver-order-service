@@ -3,29 +3,32 @@ const {dynamoDb} = require('../dbConfig/dynamoDb');
 const {validateSchema} = require('../utils/validator');
 const {errorCodes, successCodes} = require('../utils/responseCodes');
 const {schema} = require('../utils/schema');
+const {v4: uuid} = require('uuid');
 const moment = require('moment');
 const saveOrders = async event => {
   try {
     if (event.Records.length) {
       for (const record of event.Records) {
-        const order = JSON.parse(record.body);
-        await schema.saveOrderSchema(order);
-        order['id'] = uuid();
+        const order = event;
+        await validateSchema(order, schema.saveOrderSchema);
+        order['orderId'] = uuid();
         order['transition'] = 'off';
         order['currentLocation'] = 'Warehouse';
+        order['history'] = [];
       }
-      await saveOrdersToDb(order)
+      await saveOrdersToDb(order);
     }
   } catch (e) {
+    console.log('Error...', e);
     //Needed to be defined again
     //Handle invalid order
   }
 };
-const saveOrdersToDb = order => {
+const saveOrdersToDb = async order => {
   const params = {
     TableName: process.env.ORDER_DETAILS_TABLE,
     Item: {
-    ...order
+      ...order
     }
   };
   await dynamoDb.create(params);

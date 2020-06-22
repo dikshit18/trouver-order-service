@@ -3,9 +3,11 @@ const {startTransition} = require('./services/startTransition');
 const {fetchAllOrders} = require('./services/fetchAllOrders');
 const {fetchOrder} = require('./services/fetchOrder');
 const {orderHistory} = require('./services/orderHistory');
+const {checkPermissions} = require('./middleware/checkPermission');
+routes.get('/shared/order/details', fetchAllOrders);
+//routes.use(checkPermissions);
 routes.put('/shared/order/start', startTransition);
 routes.get('/shared/order/details/:orderId', fetchOrder);
-routes.get('/shared/order/details', fetchAllOrders);
 routes.put('/shared/order/history', orderHistory);
 module.exports = routes;
 /*
